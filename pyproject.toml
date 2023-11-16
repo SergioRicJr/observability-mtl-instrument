@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "observability-mtl-instrument"
+version = "0.1.0"
+description = ""
+authors = ["SergioNascimento07 <sergioricjr7@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
