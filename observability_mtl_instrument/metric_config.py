@@ -15,25 +15,26 @@ class MetricConfig:
             'histogram': Histogram
         }
 
-        self.metrics = {
-            'status_http_counter': self.metrics_types['counter'](
-                'http_requests_total_by_code',
-                'responses total by status code',
-                ['http_code', 'unmapped'],
-                registry=self.registry
-            ),
-            'http_request_duration': self.metrics_types['summary'](
-                'http_requests_duration_seconds',
-                'reponse time of request',
-                ['url_path', 'http_method', 'unmapped'],
-                registry=self.registry
-            ),
-            'requests_in_progress': self.metrics_types['gauge'](
-                'request_in_progress_total',
-                'quantity of requests in progress',
-                registry=self.registry
-            )
-        }
+        self.metrics = {}
+
+        self.add_metric(
+            title='http_requests_total_by_code',
+            type='counter',
+            description='responses total by status code',
+            labels=['http_code', 'unmapped', 'service']
+        )
+        self.add_metric(
+            title='http_requests_duration_seconds',
+            type='summary',
+            description='reponse time of request',
+            labels=['url_path', 'http_method', 'unmapped', 'service']
+        )
+        self.add_metric(
+            title='requests_in_progress',
+            type='gauge',
+            description='quantity of requests in progress',
+            labels=['service']
+        )
 
     def add_metric(self, type: str, title: str, description: str, labels: list[str] = []):
         self.metrics[title] = self.metrics_types[type](
