@@ -28,7 +28,7 @@ class LogConfig():
     def __init__(
         self,
         service_name: str,
-        log_level: str,
+        log_level: int,
         loki_url: str,
         extra_labels={},
         log_format: str = '%(asctime)s levelname=%(levelname)s name=%(name)s file=%(filename)s:%(lineno)d trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s trace_sampled=%(otelTraceSampled)s - message="%(message)s"',
@@ -38,7 +38,7 @@ class LogConfig():
         self.service_name = service_name
         self.log_format = log_format
         self.logger = logging.getLogger(logger_name)
-        self.logger.setLevel(self.find_log_level(log_level))
+        self.logger.setLevel(log_level)
         self.logger.addHandler(
             LokiLogHandler(
                 log_format=self.log_format,
@@ -49,17 +49,6 @@ class LogConfig():
             )
         )
         LoggingInstrumentor().instrument(set_logging_format=True)
-
-    levels = {
-        'debug': logging.DEBUG,
-        'info': logging.INFO,
-        'warning': logging.WARNING,
-        'error': logging.ERROR,
-        'critical': logging.CRITICAL
-    }
-
-    def find_log_level(self, level):
-        return self.levels[level]
 
     def get_logger(self):
         return self.logger
