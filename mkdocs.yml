@@ -12,3 +12,9 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/extra.css
+
+plugins: 
+- mkdocstrings:
+    handlers:
+      python:
+        paths: [observability_mtl_instrument]
