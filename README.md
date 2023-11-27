@@ -66,14 +66,12 @@ O prometheus possui diversos tipos de métrica, que podem ser conhecidas atravé
 #### Métricas default
 É possível adicionar e criar métricas de acordo com o seu objetivo, porém, a biblioteca já apresenta três métricas por padrão, são elas:
 - http_requests_total_by_code 
-    - 
     - Tipo: Counter
     - Labels: 
         - http_code: Código do status HTTP.
         - unmapped: True ou False, para dizer se a rota é ou não conhecida pela aplicação.
         - service: Nome do serviço, aplicação ou job.
 - http_requests_duration_seconds
-    - 
     - Tipo: Summary
     - Labels: 
         - url_path: Rota da requisição.
@@ -81,7 +79,6 @@ O prometheus possui diversos tipos de métrica, que podem ser conhecidas atravé
         - unmapped: True ou False, para dizer se a rota é ou não conhecida pela aplicação.
         - service: Nome do serviço, aplicação ou job.
 - requests_in_progress
-    - 
     - Tipo: Gauge
     - Labels: 
         - service: Nome do serviço, aplicação ou job.
