@@ -4,6 +4,18 @@ version = "0.1.0"
 description = ""
 authors = ["SergioNascimento07 <sergioricjr7@gmail.com>"]
 readme = "README.md"
+packages = [{include = "observability-mtl-instrument"}]
+classifiers = [
+    "Natural Language :: Portuguese (Brazilian)",
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3.10",
+    "Intended Audience :: Developers"
+]
+
+[tool.poetry.urls]
+"Documentação" = "https://observability-mtl-instrument.readthedocs.io/pt-br/latest/"
+"Código" = "https://github.com/SergioRicJr/observability-mtl-instrument"
+"Bug Tracker" = "https://github.com/SergioRicJr/observability-mtl-instrument/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"
