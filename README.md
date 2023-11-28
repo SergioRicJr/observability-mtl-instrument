@@ -1,10 +1,13 @@
 
-# Descrição do projeto
+# Observability-mtl-instrument
 
 O observability-mtl-instrument é um pacote que simplifica a instrumentação e configuração para coleta e envio de métricas, traces e logs. Por padrão a Stack utilizada é:
 - Métricas: Prometheus e PushGateway
 - Traces: Grafana/Tempo
 - Logs: Grafana/Loki
+
+![Texto Alternativo](./images/observability.drawio.png)
+
 
 # Tabela de conteúdos
 * [Pacote de observabilidade](pacote-de-observabilidade)
