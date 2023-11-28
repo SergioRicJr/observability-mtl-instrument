@@ -1,0 +1,90 @@
+version: '3.7'
+services:
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - observability-network
+    depends_on:
+      - loki
+      - tempo
+      - grafana
+      - prometheus
+      - pushgateway
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    # command: ["--config=/etc/grafana/grafana.ini"]
+    restart: always
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ./etc/grafana/:/etc/grafana/provisioning/datasources
+      - ./etc/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./etc/dashboards:/etc/grafana/dashboards
+      - ./etc/grafana.ini:/etc/grafana/grafana.ini
+      - grafana_storage:/var/lib/grafana
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost:3000/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    networks:
+      - observability-network
+
+
+  tempo:
+    image: grafana/tempo:2.2.0
+    container_name: tempo
+    command: ["--config.file=/etc/tempo-local.yaml"]
+    ports:
+      - 3200:3200
+    volumes:
+      - ./tempo/tempo-local.yaml:/etc/tempo-local.yaml
+    depends_on:
+      - loki
+    networks:
+      - observability-network
+
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - 9090:9090
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+    networks:
+      - observability-network
+
+  pushgateway:
+    image: prom/pushgateway:v1.6.2
+    ports:
+      - 9091:9091
+    networks:
+        - observability-network
+
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - 3100:3100  
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml 
+    networks:
+      - observability-network
+      
+volumes:
+  grafana_storage:
+
+networks:
+  observability-network:
+    driver: bridge 
+    name: observability-network
