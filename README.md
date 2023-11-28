@@ -1,3 +1,4 @@
+
 # Descrição do projeto
 
 O observability-mtl-instrument é um pacote que simplifica a instrumentação e configuração para coleta e envio de métricas, traces e logs. Por padrão a Stack utilizada é:
@@ -53,12 +54,21 @@ Instale e atualize usando pip:
 
 
 ### Chamar métricas
+As métricas utilizadas são baseadas e utilizam por baixo dos panos o prometheus_client, sendo assim, sejam as métricas padrões ou aquelas criadas por quem está usando, possuem os métodos e as formas de registrar as métricas seguindo a seguinte documentação: https://prometheus.github.io/client_python/. Sendo utilizado em código da seguinte forma:
+
 
 ```py
     metrics = metric_config.metrics
 
     # As métricas podem ser utilizadas em um middleware da aplicação para funcionar de forma a poluir menos o código 
     metrics['requests_in_progress'].labels(service='fastapi-app').inc()
+```
+
+### Envio das métricas
+O envio das métricas registradas em código é realizado da seguinte forma:
+
+```py
+    metric_config.send_metrics()
 ```
 
 
@@ -74,7 +84,8 @@ O prometheus possui diversos tipos de métrica, que podem ser conhecidas atravé
 É possível adicionar e criar métricas de acordo com o seu objetivo, porém, a biblioteca já apresenta três métricas por padrão, são elas:
 ### http_requests_total_by_code:
 Tipo: Counter
-- Labels:
+<br/>Labels:
+
 | Nome   | Tipo       | Descrição                           |
 | :---------- | :--------- | :---------------------------------- |
 | `http_code` | `string` | Código do status HTTP. |
@@ -83,7 +94,8 @@ Tipo: Counter
 
 ### http_requests_duration_seconds
 Tipo: Summary
-- Labels: 
+<br/>Labels: 
+
 | Nome   | Tipo       | Descrição                           |
 | :---------- | :--------- | :---------------------------------- |
 | `url_path` | `string` | Rota da requisição |
@@ -93,10 +105,26 @@ Tipo: Summary
 
 ### requests_in_progress
 Tipo: Gauge
-- Labels: 
+<br/>Labels: 
+
 | Nome   | Tipo       | Descrição                           |
 | :---------- | :--------- | :---------------------------------- |
 | `service` | `string` | Nome do serviço, aplicação ou job. |
+
+### Adição de métricas
+Além das métricas já existentes ao realizar a configuração, é possível criar outras completamente personalizadas, adicionando o título, seu tipo, sua descrição e os labels. Segue um exemplo dessa criação de métricas:
+
+```py
+    from observability_mtl_instrument.metric_config import MetricType
+
+    # Após instânciar MetricConfig
+    metric_config.add_metrics(
+        title="requests_in_progress",
+        type=MetricType.GAUGE,
+        description: "",
+        labels=['service']
+    )
+```
 
 
 # Próximas funcionalidades
