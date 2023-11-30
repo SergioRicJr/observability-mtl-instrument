@@ -3,18 +3,19 @@ import datetime
 from datetime import timezone
 import requests
 import logging
+from requests import Response
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
+from logging import Logger
 
 class LokiLogHandler(logging.Handler):
-    def __init__(self, log_format, service_name, log_function, loki_url, extra_labels):
+    def __init__(self, log_format: str, service_name: str, loki_url: str, extra_labels: {str: str | int | float} | {}):
         super(LokiLogHandler, self).__init__()
         self.formatter = logging.Formatter(log_format)
         self.service_name = service_name
-        self.log_function = log_function
         self.loki_url = loki_url
-        self.extra_labels: dict = extra_labels
+        self.extra_labels = extra_labels
 
-    def get_utc_timestamp_unix(self):
+    def get_utc_timestamp_unix(self) -> str:
         dt = datetime.datetime.now(timezone.utc)
         utc_time = dt.replace(tzinfo=timezone.utc)
         utc_timestamp = utc_time.timestamp()
@@ -22,15 +23,58 @@ class LokiLogHandler(logging.Handler):
         timestamp_unix_nanos_str = str(timestamp_unix_nanos)
         return timestamp_unix_nanos_str
     
-    def emit(self, record: LogRecord):
-        log_entry = self.format(record)
+    def build_stream_dict(self, service_name: str, record: LogRecord, extra_labels: dict) ->  dict[str, dict[str, str]]:
+        stream_dict = {
+            "stream": {
+                "service": service_name,
+                "severity": record.levelname,
+                "name": record.name,
+            }
+        }
+        for label in extra_labels:
+            stream_dict["stream"].update(label)
+
+        return stream_dict
+    
+    def build_loki_log_data(self, stream_dict: dict, timestamp_unix_nanos_str: str, log_entry: str) -> dict:
+        data = {
+            "streams": [
+                {**stream_dict, "values": [[timestamp_unix_nanos_str, log_entry]]}
+            ]
+        }
+        return data
+
+    def send_logs(self, record, log_entry, job_name, loki_url, timestamp_unix_nanos_str, *extra_labels) -> Response:
+        headers = {"Content-type": "application/json"}
+
+        stream_dict = self.build_stream_dict(
+            job_name, record, extra_labels
+        )
+        data = self.build_loki_log_data(
+            stream_dict, timestamp_unix_nanos_str, log_entry
+        )
+        response = requests.post(loki_url, json=data, headers=headers)
+        return response
+    
+    def build_extra_labels(self, record: LogRecord) -> dict:
         extra_log_label = record.__dict__.get("extra_labels")
-        timestamp_unix_nanos_str = self.get_utc_timestamp_unix()
         if extra_log_label:
             self.extra_labels = self.extra_labels | extra_log_label
-        response = self.log_function(
-            record, log_entry, self.service_name, self.loki_url, timestamp_unix_nanos_str, self.extra_labels
+        return self.extra_labels
+    
+    def emit(self, record: LogRecord):
+        log_entry = self.format(record)
+        timestamp_unix_nanos_str = self.get_utc_timestamp_unix()
+        self.extra_labels = self.build_extra_labels(record)
+        response = self.send_logs(
+            record, 
+            log_entry, 
+            self.service_name, 
+            self.loki_url, 
+            timestamp_unix_nanos_str, 
+            self.extra_labels
         )
+
         return response
 
 
@@ -79,32 +123,11 @@ class LogConfig:
             LokiLogHandler(
                 log_format=self.log_format,
                 service_name=self.service_name,
-                log_function=self.send_logs,
                 loki_url=loki_url,
                 extra_labels=extra_labels,
             )
         )
         LoggingInstrumentor().instrument(set_logging_format=True)
 
-    def get_logger(self):
+    def get_logger(self) -> Logger:
         return self.logger
-
-    def send_logs(self, record, log_entry, job_name, loki_url, timestamp_unix_nanos_str, *extra_labels):
-        headers = {"Content-type": "application/json"}
-        stream_dict = {
-            "stream": {
-                "job": job_name,
-                "severity": record.levelname,
-                "name": record.name,
-            }
-        }
-        for label in extra_labels:
-            stream_dict["stream"].update(label)
-
-        data = {
-            "streams": [
-                {**stream_dict, "values": [[timestamp_unix_nanos_str, log_entry]]}
-            ]
-        }
-        response = requests.post(loki_url, json=data, headers=headers)
-        return response
