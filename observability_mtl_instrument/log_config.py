@@ -1,16 +1,24 @@
-from logging import LogRecord
 import datetime
-from datetime import timezone
-import requests
 import logging
-from requests import Response
+from datetime import timezone
+from logging import Logger, LogRecord
+
+import requests
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
-from logging import Logger
+from requests import Response
+
 
 class LokiLogHandler(logging.Handler):
-    def __init__(self, log_format: str, service_name: str, loki_url: str, extra_labels: {str: str | int | float} | {}):
+    def __init__(
+        self,
+        log_format: str,
+        service_name: str,
+        loki_url: str,
+        extra_labels: {str: str | int | float} | {} = {},
+    ):
         super(LokiLogHandler, self).__init__()
         self.formatter = logging.Formatter(log_format)
+        print(self.formatter)
         self.service_name = service_name
         self.loki_url = loki_url
         self.extra_labels = extra_labels
@@ -22,57 +30,70 @@ class LokiLogHandler(logging.Handler):
         timestamp_unix_nanos = int(utc_timestamp * 1e9)
         timestamp_unix_nanos_str = str(timestamp_unix_nanos)
         return timestamp_unix_nanos_str
-    
-    def build_stream_dict(self, service_name: str, record: LogRecord, extra_labels: dict) ->  dict[str, dict[str, str]]:
+
+    def build_stream_dict(
+        self, service_name: str, record: LogRecord, extra_labels: dict
+    ) -> dict[str, dict[str, str]]:
         stream_dict = {
-            "stream": {
-                "service": service_name,
-                "severity": record.levelname,
-                "name": record.name,
+            'stream': {
+                'service': service_name,
+                'severity': record.levelname,
+                'name': record.name,
             }
         }
         for label in extra_labels:
-            stream_dict["stream"].update(label)
+            stream_dict['stream'].update(label)
 
         return stream_dict
-    
-    def build_loki_log_data(self, stream_dict: dict, timestamp_unix_nanos_str: str, log_entry: str) -> dict:
+
+    def build_loki_log_data(
+        self, stream_dict: dict, timestamp_unix_nanos_str: str, log_entry: str
+    ) -> dict:
         data = {
-            "streams": [
-                {**stream_dict, "values": [[timestamp_unix_nanos_str, log_entry]]}
+            'streams': [
+                {
+                    **stream_dict,
+                    'values': [[timestamp_unix_nanos_str, log_entry]],
+                }
             ]
         }
         return data
 
-    def send_logs(self, record, log_entry, job_name, loki_url, timestamp_unix_nanos_str, *extra_labels) -> Response:
-        headers = {"Content-type": "application/json"}
+    def send_logs(
+        self,
+        record,
+        log_entry,
+        job_name,
+        loki_url,
+        timestamp_unix_nanos_str,
+        *extra_labels
+    ) -> Response:
+        headers = {'Content-type': 'application/json'}
 
-        stream_dict = self.build_stream_dict(
-            job_name, record, extra_labels
-        )
+        stream_dict = self.build_stream_dict(job_name, record, extra_labels)
         data = self.build_loki_log_data(
             stream_dict, timestamp_unix_nanos_str, log_entry
         )
         response = requests.post(loki_url, json=data, headers=headers)
         return response
-    
+
     def build_extra_labels(self, record: LogRecord) -> dict:
-        extra_log_label = record.__dict__.get("extra_labels")
+        extra_log_label = record.__dict__.get('extra_labels')
         if extra_log_label:
             self.extra_labels = self.extra_labels | extra_log_label
         return self.extra_labels
-    
+
     def emit(self, record: LogRecord):
         log_entry = self.format(record)
         timestamp_unix_nanos_str = self.get_utc_timestamp_unix()
         self.extra_labels = self.build_extra_labels(record)
         response = self.send_logs(
-            record, 
-            log_entry, 
-            self.service_name, 
-            self.loki_url, 
-            timestamp_unix_nanos_str, 
-            self.extra_labels
+            record,
+            log_entry,
+            self.service_name,
+            self.loki_url,
+            timestamp_unix_nanos_str,
+            self.extra_labels,
         )
 
         return response
@@ -89,20 +110,20 @@ class LogConfig:
         extra_labels: Objeto com labels personalizados que serão aplicados em todos os logs daquela instância
         log_format: Formatação de quais dados integrarão os logs e de que forma
 
-        
+
     Examples:
         - Configuração do log:
-        >>> import logging
-        >>> log_config = LogConfig(service_name: "myapp-name", "log_level": logging.DEBUG, loki_url: "http://endereço_loki/loki/api/v1/push", extra_labels: {"job": "foo"})
-    
+        import logging
+        log_config = LogConfig(service_name: "myapp-name", "log_level": logging.DEBUG, loki_url: "http://endereço_loki/loki/api/v1/push", extra_labels: {"job": "foo"})
+
         - Chamada e envio de log
-        >>> logger = log_config.getLogger()
-        >>> logger.info('sua mensagem de log')
+        logger = log_config.getLogger()
+        logger.info('sua mensagem de log')
 
         - Chamada e envio de log com labels extras:
-        >>> logger.info('sua mensagem de log', extra={extra_labels: {"function": "send_email"}})
+        logger.info('sua mensagem de log', extra={extra_labels: {"function": "send_email"}})
 
-    
+
     """
 
     def __init__(
