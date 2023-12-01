@@ -17,11 +17,8 @@ jobs:
       - name: Instalar Poetry
         run: pip install poetry
 
-      - name: Ativar ambiente virtual poetry
-        run: poetry shell
-
       - name: Instalar dependências do projeto
-        run: poetry install --without doc
+        run: poetry install --without doc --no-root
 
       - name: Rodar os testes
         run: poetry run task test --cov-report=xml
