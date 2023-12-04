@@ -1,6 +1,6 @@
 import logging
 from logging import Logger
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
@@ -59,9 +59,9 @@ def test_logConfig_constructor_must_call_LoggingInstrumentor_instrumet(
     logging_instrument.assert_called_once_with(set_logging_format=True)
 
 
-@patch('observability_mtl_instrument.log_config.LogConfig.add_handler')
+@patch('observability_mtl_instrument.log_config.LogConfig.set_handler')
 def test_logConfig_constructor_must_call_add_handler(
-    add_handler: LoggingInstrumentor, log_config
+    set_handler: LoggingInstrumentor, log_config
 ):
     log_config.__init__(
         service_name='testes',
@@ -69,9 +69,20 @@ def test_logConfig_constructor_must_call_add_handler(
         loki_url='http://url-test/loki/v1/push',
     )
 
-    add_handler.assert_called_once_with(
-        log_format='%(asctime)s levelname=%(levelname)s name=%(name)s file=%(filename)s:%(lineno)d trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s trace_sampled=%(otelTraceSampled)s - message="%(message)s"',
+    set_handler.assert_called_once()
+
+
+@patch('logging.getLogger')
+def test_logConfing_must_call_logger_add_handler_with_loki_log_handler_instance(
+    logger: Logger, log_config
+):
+    log_config.__init__(
         service_name='testes',
+        log_level=logging.DEBUG,
         loki_url='http://url-test/loki/v1/push',
-        extra_labels={},
+        logger_name='teste',
+    )
+
+    logging.getLogger('teste').addHandler.assert_called_once_with(
+        log_config.loki_log_handler
     )
