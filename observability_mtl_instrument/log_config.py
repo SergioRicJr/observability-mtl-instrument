@@ -18,7 +18,6 @@ class LokiLogHandler(logging.Handler):
     ):
         super(LokiLogHandler, self).__init__()
         self.formatter = logging.Formatter(log_format)
-        print(self.formatter)
         self.service_name = service_name
         self.loki_url = loki_url
         self.extra_labels = extra_labels
@@ -139,16 +138,27 @@ class LogConfig:
         self.service_name = service_name
         self.log_format = log_format
         self.logger = logging.getLogger(logger_name)
-        self.logger.setLevel(log_level)
+        self.set_level(self.logger, log_level)
+        self.add_handler(
+            log_format=self.log_format,
+            service_name=self.service_name,
+            loki_url=loki_url,
+            extra_labels=extra_labels,
+        )
+        LoggingInstrumentor().instrument(set_logging_format=True)
+
+    def add_handler(self, log_format, service_name, loki_url, extra_labels):
         self.logger.addHandler(
             LokiLogHandler(
-                log_format=self.log_format,
-                service_name=self.service_name,
+                log_format=log_format,
+                service_name=service_name,
                 loki_url=loki_url,
                 extra_labels=extra_labels,
             )
         )
-        LoggingInstrumentor().instrument(set_logging_format=True)
+
+    def set_level(self, logger, level):
+        logger.setLevel(level)
 
     def get_logger(self) -> Logger:
         return self.logger
