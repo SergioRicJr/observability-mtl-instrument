@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "observability-mtl-instrument"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["SergioNascimento07 <sergioricjr7@gmail.com>"]
 readme = "README.md"
