@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["SergioNascimento07 <sergioricjr7@gmail.com>"]
 readme = "README.md"
-packages = [{include = "observability-mtl-instrument"}]
+packages = [{include = "observability_mtl_instrument"}]
 classifiers = [
     "Natural Language :: Portuguese (Brazilian)",
     "Development Status :: 5 - Production/Stable",
