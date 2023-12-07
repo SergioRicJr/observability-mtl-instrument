@@ -6,7 +6,7 @@ O observability-mtl-instrument é um pacote que simplifica a instrumentação e 
 - Traces: Grafana/Tempo
 - Logs: Grafana/Loki
 
-![Texto Alternativo](./images/observability.drawio.png)
+![Texto Alternativo](./images/observability-architecture.png)
 
 
 # Tabela de conteúdos
