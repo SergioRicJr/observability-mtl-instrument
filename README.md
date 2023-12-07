@@ -242,7 +242,7 @@ Os labels são utilizados para facilitar a busca por logs no Grafana/Loki, sendo
 
 
 # Próximas funcionalidades
-
+- Desenvolvimento de envio assíncrono de métricas, traces e logs ✏️🚧
 - Desenvolvimento de Middleware para Django Rest Framework ✏️🚧
 - Desenvolvimento de Middleware para FastAPI ✏️🚧
 
