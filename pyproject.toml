@@ -3,13 +3,15 @@ name = "observability-mtl-instrument"
 version = "0.1.4"
 description = ""
 authors = ["SergioNascimento07 <sergioricjr7@gmail.com>"]
+license = "MIT"
 readme = "README.md"
 packages = [{include = "observability_mtl_instrument"}]
 classifiers = [
     "Natural Language :: Portuguese (Brazilian)",
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3.10",
-    "Intended Audience :: Developers"
+    "Intended Audience :: Developers",
+    "Topic :: System :: Monitoring"
 ]
 
 [tool.poetry.urls]
