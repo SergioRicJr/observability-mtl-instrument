@@ -112,15 +112,23 @@ class LogConfig:
 
     Examples:
         - Configuração do log:
-        import logging
-        log_config = LogConfig(service_name: "myapp-name", "log_level": logging.DEBUG, loki_url: "http://endereço_loki/loki/api/v1/push", extra_labels: {"job": "foo"})
+        ```bash
+            import logging
+            log_config = LogConfig(service_name: "myapp-name", "log_level": logging.DEBUG, loki_url: "http://endereço_loki/loki/api/v1/push", extra_labels: {"job": "foo"})
+        ```  
 
         - Chamada e envio de log
-        logger = log_config.getLogger()
-        logger.info('sua mensagem de log')
+        ```bash
+            logger = log_config.getLogger()
+            logger.info('sua mensagem de log')
+        ```
+        
 
         - Chamada e envio de log com labels extras:
-        logger.info('sua mensagem de log', extra={extra_labels: {"function": "send_email"}})
+        ```bash
+            logger.info('sua mensagem de log', extra={extra_labels: {"function": "send_email"}})
+        ```
+        
 
 
     """
