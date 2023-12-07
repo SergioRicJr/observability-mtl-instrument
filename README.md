@@ -247,6 +247,6 @@ Os labels são utilizados para facilitar a busca por logs no Grafana/Loki, sendo
 - Desenvolvimento de Middleware para FastAPI ✏️🚧
 
 # Links
-- [PyPi releases (pendente)]()
+- [PyPi releases](https://pypi.org/project/observability-mtl-instrument/)
 - [Documentação ReadTheDocs](https://observability-mtl-instrument.readthedocs.io/pt-br/latest/)
 - [Código fonte](https://github.com/SergioRicJr/observability-mtl-instrument)
