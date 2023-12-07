@@ -108,29 +108,7 @@ class LogConfig:
         loki_url: Url da aplicação Grafana/Loki, que receberá os logs
         extra_labels: Objeto com labels personalizados que serão aplicados em todos os logs daquela instância
         log_format: Formatação de quais dados integrarão os logs e de que forma
-
-
-    Examples:
-        - Configuração do log:
-        ```bash
-            import logging
-            log_config = LogConfig(service_name: "myapp-name", "log_level": logging.DEBUG, loki_url: "http://endereço_loki/loki/api/v1/push", extra_labels: {"job": "foo"})
-        ```  
-
-        - Chamada e envio de log
-        ```bash
-            logger = log_config.getLogger()
-            logger.info('sua mensagem de log')
-        ```
-        
-
-        - Chamada e envio de log com labels extras:
-        ```bash
-            logger.info('sua mensagem de log', extra={extra_labels: {"function": "send_email"}})
-        ```
-        
-
-
+        logger_name: Nome que será dado ao logger
     """
 
     def __init__(

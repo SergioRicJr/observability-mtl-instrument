@@ -29,6 +29,13 @@ class MetricType(Enum):
 
 
 class MetricConfig:
+    """
+    Configura as métricas e realiza o envio ao pushgateway do prometheus.
+
+    Parameters:
+        job_name: Nome do serviço, aplicação ou job que está rodando
+        prometheus_url: Url da aplicação Prometheus/pushgateway, que receberá as métricas
+    """
     def __init__(self, job_name: str, prometheus_url: str) -> None:
         self.registry = CollectorRegistry()
         self.job_name = job_name

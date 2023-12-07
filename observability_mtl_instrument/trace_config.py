@@ -8,6 +8,13 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 
 class ConfigTrace:
+    """
+    Configura os Traces e realiza o envio ao Grafana/Tempo.
+
+    Parameters:
+        service_name: Nome do serviço, aplicação ou job que está rodando
+        tempo_url: Url da aplicação Grafana/Tempo que receberá os traces
+    """
     def __init__(self, service_name: str, tempo_url: str) -> None:
         self.config_data_trace(service_name, tempo_url)
         self.trace = trace
