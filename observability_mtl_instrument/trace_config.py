@@ -7,7 +7,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 
-class ConfigTrace:
+class TraceConfig:
     """
     Configura os Traces e realiza o envio ao Grafana/Tempo.
 
