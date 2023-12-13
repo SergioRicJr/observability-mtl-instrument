@@ -36,6 +36,7 @@ class MetricConfig:
         job_name: Nome do serviço, aplicação ou job que está rodando
         prometheus_url: Url da aplicação Prometheus/pushgateway, que receberá as métricas
     """
+
     def __init__(self, job_name: str, prometheus_url: str) -> None:
         self.registry = CollectorRegistry()
         self.job_name = job_name
@@ -47,19 +48,19 @@ class MetricConfig:
             title='http_requests_total_by_code',
             type=MetricType.COUNTER,
             description='responses total by status code',
-            labels=['http_code', 'unmapped', 'service'],
+            labels=['http_code', 'unmapped', 'service_name'],
         )
         self.add_metric(
             title='http_requests_duration_seconds',
             type=MetricType.SUMMARY,
             description='reponse time of request',
-            labels=['url_path', 'http_method', 'unmapped', 'service'],
+            labels=['url_path', 'http_method', 'unmapped', 'service_name'],
         )
         self.add_metric(
             title='requests_in_progress',
             type=MetricType.GAUGE,
             description='quantity of requests in progress',
-            labels=['service'],
+            labels=['service_name'],
         )
 
     def add_metric(
