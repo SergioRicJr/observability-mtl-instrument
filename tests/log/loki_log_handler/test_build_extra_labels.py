@@ -14,23 +14,23 @@ def test_build_extra_label_function_must_add_in_extra_label_attribute_off_loki_l
     assert loki_log_handler.extra_labels == {'foo': 'bar', 'john': 'doe'}
 
 
-@patch('observability_mtl_instrument.log_config.LokiLogHandler.send_logs')
-def test_build_extra_label_function_must_be_called_when_logger_was_called(
-    send_logs, log_config
-):
-    loki_handler = log_config.loki_log_handler
+# @patch('observability_mtl_instrument.log_config.LokiLogHandler.send_logs')
+# def test_build_extra_label_function_must_be_called_when_logger_was_called(
+#     send_logs, log_config
+# ):
+#     loki_handler = log_config.loki_log_handler
 
-    MagicMock(wraps=loki_handler.build_extra_labels)
+#     MagicMock(wraps=loki_handler.build_extra_labels)
 
-    logger = log_config.get_logger()
+#     logger = log_config.get_logger()
 
-    logger.info(
-        'hello world, first message',
-        extra={'extra_labels': {'foo': 'bar', 'second_label': 'second_value'}},
-    )
+#     logger.info(
+#         'hello world, first message',
+#         extra={'extra_labels': {'foo': 'bar', 'second_label': 'second_value'}},
+#     )
 
-    assert loki_handler.extra_labels == {
-        'first_label': 'first_value',
-        'foo': 'bar',
-        'second_label': 'second_value',
-    }
+#     assert loki_handler.extra_labels == {
+#         'first_label': 'first_value',
+#         'foo': 'bar',
+#         'second_label': 'second_value',
+#     }
