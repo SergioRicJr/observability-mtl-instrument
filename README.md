@@ -1,5 +1,9 @@
 
 # Observability-mtl-instrument
+[![Documentation Status](https://readthedocs.org/projects/observability-mtl-instrument/badge/?version=latest)](https://observability-mtl-instrument.readthedocs.io/pt-br/latest/?badge=latest)
+[![CI](https://github.com/SergioRicJr/observability-mtl-instrument/actions/workflows/pipeline.yaml/badge.svg)](https://github.com/SergioRicJr/observability-mtl-instrument/actions/workflows/pipeline.yaml)
+[![codecov](https://codecov.io/github/SergioRicJr/observability-mtl-instrument/graph/badge.svg?token=T7B0VMGJ95)](https://codecov.io/github/SergioRicJr/observability-mtl-instrument)
+[![PyPI version](https://badge.fury.io/py/observability-mtl-instrument.svg)](https://badge.fury.io/py/observability-mtl-instrument)
 
 O observability-mtl-instrument é um pacote que simplifica a instrumentação e configuração para coleta e envio de métricas, traces e logs. Por padrão a Stack utilizada é:
 - Métricas: Prometheus e PushGateway
