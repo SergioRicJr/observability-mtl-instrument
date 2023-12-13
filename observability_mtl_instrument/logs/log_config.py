@@ -2,15 +2,20 @@ import datetime
 import logging
 from datetime import timezone
 from logging import Logger, LogRecord
+from typing import Type
 
-import requests
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from requests import Response
+
+from observability_mtl_instrument.logs.request_strategies.log_request_interface import (
+    LogRequestInterface,
+)
 
 
 class LokiLogHandler(logging.Handler):
     def __init__(
         self,
+        instance: Type[LogRequestInterface],
         log_format: str,
         service_name: str,
         loki_url: str,
@@ -21,6 +26,8 @@ class LokiLogHandler(logging.Handler):
         self.service_name = service_name
         self.loki_url = loki_url
         self.extra_labels = extra_labels
+        self.tasks = []
+        self.instance = instance
 
     def get_utc_timestamp_unix(self) -> str:
         dt = datetime.datetime.now(timezone.utc)
@@ -58,6 +65,12 @@ class LokiLogHandler(logging.Handler):
         }
         return data
 
+    def make_request(
+        self, instance: LogRequestInterface, loki_url, data, headers
+    ):
+        instance = instance(loki_url, data, headers)
+        instance.make_request()
+
     def send_logs(
         self,
         record,
@@ -73,8 +86,7 @@ class LokiLogHandler(logging.Handler):
         data = self.build_loki_log_data(
             stream_dict, timestamp_unix_nanos_str, log_entry
         )
-        response = requests.post(loki_url, json=data, headers=headers)
-        return response
+        self.make_request(self.instance, loki_url, data, headers)
 
     def build_extra_labels(self, record: LogRecord) -> dict:
         extra_log_label = record.__dict__.get('extra_labels')
@@ -111,36 +123,86 @@ class LogConfig:
         logger_name: Nome que será dado ao logger
     """
 
-    def __init__(
-        self,
-        service_name: str,
-        log_level: int,
-        loki_url: str,
-        extra_labels: {str: str | int | float} | {} = {},
-        log_format: str = '%(asctime)s levelname=%(levelname)s name=%(name)s file=%(filename)s:%(lineno)d trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s trace_sampled=%(otelTraceSampled)s - message="%(message)s"',
-        logger_name=__name__,
-    ):
-        super(LogConfig, self).__init__()
-        self.service_name = service_name
-        self.log_format = log_format
-        self.loki_url = loki_url
-        self.extra_labels = extra_labels
-        self.loki_log_handler = LokiLogHandler(
-            log_format=self.log_format,
-            service_name=self.service_name,
-            loki_url=self.loki_url,
-            extra_labels=self.extra_labels,
-        )
-        self.logger = logging.getLogger(logger_name)
-        self.set_level(self.logger, log_level)
-        self.set_handler()
-        LoggingInstrumentor().instrument(set_logging_format=True)
+    @property
+    def service_name(self):
+        return self._service_name
+
+    @service_name.setter
+    def service_name(self, service_name):
+        self._service_name = service_name
+
+    @property
+    def log_format(self):
+        return self._log_format
+
+    @log_format.setter
+    def log_format(self, log_format):
+        self._log_format = log_format
+
+    @property
+    def loki_url(self):
+        return self._loki_url
+
+    @loki_url.setter
+    def loki_url(self, loki_url):
+        self._loki_url = loki_url
+
+    @property
+    def extra_labels(self):
+        return self._extra_labels
+
+    @extra_labels.setter
+    def extra_labels(self, extra_labels):
+        self._extra_labels = extra_labels
+
+    @property
+    def make_request_class(self):
+        return self._make_request_class
+
+    @make_request_class.setter
+    def make_request_class(self, make_request_class):
+        self._make_request_class = make_request_class
+
+    @property
+    def loki_log_handler(self):
+        return self._loki_log_handler
+
+    @loki_log_handler.setter
+    def loki_log_handler(self, loki_log_handler: LokiLogHandler):
+        self._loki_log_handler = loki_log_handler
+
+    @property
+    def logger(self) -> Logger:
+        return self._logger
+
+    @logger.setter
+    def logger(self, logger_name) -> None:
+        self._logger = logging.getLogger(logger_name)
+
+    @property
+    def logger_name(self):
+        return self._logger_name
+
+    @logger_name.setter
+    def logger_name(self, logger_name):
+        self._logger_name = logger_name
+
+    @property
+    def log_level(self):
+        return self._log_level
+
+    @log_level.setter
+    def log_level(self, log_level):
+        self._log_level = log_level
 
     def set_handler(self):
-        self.logger.addHandler(self.loki_log_handler)
+        self._logger.addHandler(self.loki_log_handler)
 
-    def set_level(self, logger, level):
-        logger.setLevel(level)
+    def set_level(self, level: int):
+        self._logger.setLevel(level)
+
+    def instrument_log(self):
+        LoggingInstrumentor().instrument(set_logging_format=True)
 
     def get_logger(self) -> Logger:
-        return self.logger
+        return self._logger
