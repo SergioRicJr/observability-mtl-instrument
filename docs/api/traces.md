@@ -1,1 +1,1 @@
-:::trace_config
+:::tracer.trace_config

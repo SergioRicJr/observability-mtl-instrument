@@ -1,12 +1,16 @@
+
 # Observability-mtl-instrument
 
 O observability-mtl-instrument é um pacote que simplifica a instrumentação e configuração para coleta e envio de métricas, traces e logs. Por padrão a Stack utilizada é:
+
 - Métricas: Prometheus e PushGateway
+
 - Traces: Grafana/Tempo
+
 - Logs: Grafana/Loki
 
 # Pacote de observabilidade
-Para simplificar ainda mais o gerenciamento, armazenamento e visualizações de métricas, traces e logs, além de integração com a biblioteca é possível utilizar o pacote de observabilidade, que traz um docker-compose, diversas configurações e exemplos de uso para containers de Prometheus, Grafana/Loki, Grafana/Tempo, Grafana e NGINX. Está disponível em: "ver se posso adicionar link público" 
+Para simplificar ainda mais o gerenciamento, armazenamento e visualizações de métricas, traces e logs, além de integração com a biblioteca é possível utilizar o pacote de observabilidade, que traz um docker-compose, diversas configurações e exemplos de uso para containers de Prometheus, Grafana/Loki, Grafana/Tempo, Grafana e NGINX. Está disponível em: https://github.com/SergioRicJr/observability-package
 
 # Instalação
 
@@ -15,15 +19,13 @@ Instale e atualize usando pip:
 ```bash
   pip install observability-mtl-instrument
 ```
-    
-
 
 # Como usar
 
 ## Métricas
 ### importação da configuração de métricas:
 ```py
-    from observability_mtl_instrument.metric_config import MetricConfig
+    from observability_mtl_instrument.metrics.metric_config import MetricConfig
 ```
 
 ### Configuração básica para uso:
@@ -58,7 +60,7 @@ O envio das métricas registradas em código é realizado da seguinte forma:
 ## Traces
 ### importação da configuração dos traces:
 ```py
-    from observability_mtl_instrument.trace_config import TraceConfig
+    from observability_mtl_instrument.tracer.trace_config import TraceConfig
 ```
 
 ### Configuração básica para uso:
@@ -92,27 +94,31 @@ A outra forma é realizando a criação manual dos traces:
 ## Logs
 ### importação da configuração dos logs:
 ```py
-    from observability_mtl_instrument.log_config import LogConfig 
+    from observability_mtl_instrument.logs.builders.fullLogConfig import FullLogConfig
 ```
 
 ### Configuração básica para uso:
 
 ```py
-    import logging
-
-    log_config = LogConfig(
+    log_config = FullLogConfig(
         service_name='nome escolhido para a aplicação',
-        log_level=logging.DEBUG,
         loki_url='http://<url-do-loki>/loki/api/v1/push'
-    )
+    ).get_log_config()
 ```
 
 obs: A configuração do log_level é feita importando a biblioteca logging e utilizando seus níveis de log, que são:
+
 - logging.DEBUG
+
 - logging.INFO
+
 - logging.WARN
+
 - logging.ERROR
+
 - logging.CRITICAL
+
+por padrão o nível de log é DEBUG.
 
 ### Chamada de logs
 Os logs são configurados utilizando a biblioteca logging do python, sendo assim, para realizar a chamada e registro dos logs é necessário resgatar o logger em uma variável, como é possível ver na documentação do [logging](https://docs.python.org/3/library/logging.html). Um exemplo de chamada é:
@@ -143,7 +149,7 @@ Tipo: Counter
 | :---------- | :--------- | :---------------------------------- |
 | `http_code` | `string` | Código do status HTTP. |
 | `unmapped` | `boolean` | True ou False, para dizer se a rota é ou não conhecida pela aplicação. |
-| `service` | `string` | Nome do serviço, aplicação ou job. |
+| `service_name` | `string` | Nome do serviço, aplicação ou job. |
 
 ### http_requests_duration_seconds
 Tipo: Summary
@@ -154,7 +160,7 @@ Tipo: Summary
 | `url_path` | `string` | Rota da requisição |
 | `http_method` | `string` | Método HTTP usado na requisição |
 | `unmapped` | `boolean` | True ou False, para dizer se a rota é ou não conhecida pela aplicação. |
-| `service` | `string` | Nome do serviço, aplicação ou job. |
+| `service_name` | `string` | Nome do serviço, aplicação ou job. |
 
 ### requests_in_progress
 Tipo: Gauge
@@ -162,7 +168,7 @@ Tipo: Gauge
 
 | Nome   | Tipo       | Descrição                           |
 | :---------- | :--------- | :---------------------------------- |
-| `service` | `string` | Nome do serviço, aplicação ou job. |
+| `service_name` | `string` | Nome do serviço, aplicação ou job. |
 
 ### Adição de métricas
 Além das métricas já existentes ao realizar a configuração, é possível criar outras completamente personalizadas, adicionando o título, seu tipo, sua descrição e os labels. Segue um exemplo dessa criação de métricas:
@@ -180,16 +186,40 @@ Além das métricas já existentes ao realizar a configuração, é possível cr
 ```
 
 ## Logs
+### Envio assíncrono de logs
+É possível enviar os logs ao container Loki também de forma assíncrona, utilizando a classe FullLogConfigAsync ao invés da FullLogConfig, o que é feito da segunda forma:
+
+```py
+    log_config = FullLogConfigAsync(
+        service_name='nome escolhido para a aplicação',
+        loki_url='http://<url-do-loki>/loki/api/v1/push'
+    ).get_log_config()
+```
+
+Vale ressaltar que o envio assíncrono de logs é suportado em funções assíncronas, como usadas no fastapi, ou flask, da seguinte forma:
+
+```py
+    from fastapi import FastAPI
+
+    app = FastAPI()
+
+    @app.get("/")
+    async def welcome():
+        logger.info('hello message was sent')
+        return {"message": "Hello, welcome to the application!"}
+```
+
+Obs: Ainda está sendo estudada a compatibilidade do envio assíncrono com aplicações utilizando o Framework Django.
+
 ### Integração com Trace
 A configuração padrão dos Logs já realiza a integração com os dados do Trace mas caso seja interessante para o uso escolhido, é possível alterar a formatação do log, alterando o parâmetro log_format ao instânciar o LogConfig:
 
 ```py
-    log_config = LogConfig(
+    log_config = FullLogConfig(
         service_name='nome escolhido para a aplicação',
-        log_level=logging.DEBUG,
         loki_url='http://<url-do-loki>/loki/api/v1/push',
-        log_format: '%(asctime)s levelname=%(levelname)s name=%(name)s file=%(filename)s:%(lineno)d trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s trace_sampled=%(otelTraceSampled)s - message="%(message)s"'
-    )
+        log_format='%(asctime)s levelname=%(levelname)s name=%(name)s file=%(filename)s:%(lineno)d trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s trace_sampled=%(otelTraceSampled)s - message="%(message)s"',
+    ).get_log_config()
 ```
 
 ### Labels
@@ -198,15 +228,14 @@ Os labels são utilizados para facilitar a busca por logs no Grafana/Loki, sendo
 - Na configuração dos logs, onde todos os logs apresentarão esses labels:
 
 ```py   
-    log_config = LogConfig(
+    log_config = FullLogConfig(
         service_name='nome escolhido para a aplicação',
-        log_level=logging.DEBUG,
         loki_url='http://<url-do-loki>/loki/api/v1/push',
-        extra_labels: {
+        extra_labels={
             "label1": "valor1",
             "label2": "valor2"
         }
-    )
+    ).get_log_config()
 ```
 
 - Em chamadas específicas de log:

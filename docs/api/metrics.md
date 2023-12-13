@@ -1,1 +1,1 @@
-:::metric_config
+:::metrics.metric_config
