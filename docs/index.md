@@ -1,32 +1,13 @@
 
 # Observability-mtl-instrument
-[![Documentation Status](https://readthedocs.org/projects/observability-mtl-instrument/badge/?version=latest)](https://observability-mtl-instrument.readthedocs.io/pt-br/latest/?badge=latest)
-[![CI](https://github.com/SergioRicJr/observability-mtl-instrument/actions/workflows/pipeline.yaml/badge.svg)](https://github.com/SergioRicJr/observability-mtl-instrument/actions/workflows/pipeline.yaml)
-[![codecov](https://codecov.io/github/SergioRicJr/observability-mtl-instrument/graph/badge.svg?token=T7B0VMGJ95)](https://codecov.io/github/SergioRicJr/observability-mtl-instrument)
-[![PyPI version](https://badge.fury.io/py/observability-mtl-instrument.svg)](https://badge.fury.io/py/observability-mtl-instrument)
 
 O observability-mtl-instrument é um pacote que simplifica a instrumentação e configuração para coleta e envio de métricas, traces e logs. Por padrão a Stack utilizada é:
+
 - Métricas: Prometheus e PushGateway
+
 - Traces: Grafana/Tempo
+
 - Logs: Grafana/Loki
-
-![Texto Alternativo](./images/observability-architecture.png)
-
-
-# Tabela de conteúdos
-* [Pacote de observabilidade](pacote-de-observabilidade)
-* [Instalação](instalaçao)
-* [Como usar](como-usar)
-    - [Métricas](metricas)
-    - [Traces](traces)
-    - [Logs](logs)
-* [Informações adicionais](informaçoes-adicionais)
-    - [Métricas](metricas)
-    - [Traces](traces)
-    - [Logs](logs)
-* [Próximas funcionalidades](proximas-funcionalidades)
-* [Links](links)
-
 
 # Pacote de observabilidade
 Para simplificar ainda mais o gerenciamento, armazenamento e visualizações de métricas, traces e logs, além de integração com a biblioteca é possível utilizar o pacote de observabilidade, que traz um docker-compose, diversas configurações e exemplos de uso para containers de Prometheus, Grafana/Loki, Grafana/Tempo, Grafana e NGINX. Está disponível em: https://github.com/SergioRicJr/observability-package
@@ -264,14 +245,3 @@ Os labels são utilizados para facilitar a busca por logs no Grafana/Loki, sendo
         "label3": "valor3"
     }})
 ```
-
-
-# Próximas funcionalidades
-- Desenvolvimento de envio assíncrono de métricas e traces ✏️🚧
-- Desenvolvimento de Middleware para Django Rest Framework ✏️🚧
-- Desenvolvimento de Middleware para FastAPI ✏️🚧
-
-# Links
-- [PyPi releases](https://pypi.org/project/observability-mtl-instrument/)
-- [Documentação ReadTheDocs](https://observability-mtl-instrument.readthedocs.io/pt-br/latest/)
-- [Código fonte](https://github.com/SergioRicJr/observability-mtl-instrument)

@@ -1,15 +1,17 @@
 [tool.poetry]
 name = "observability-mtl-instrument"
-version = "0.1.0"
+version = "0.2.1"
 description = ""
 authors = ["SergioNascimento07 <sergioricjr7@gmail.com>"]
+license = "MIT"
 readme = "README.md"
-packages = [{include = "observability-mtl-instrument"}]
+packages = [{include = "observability_mtl_instrument"}]
 classifiers = [
     "Natural Language :: Portuguese (Brazilian)",
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3.10",
-    "Intended Audience :: Developers"
+    "Intended Audience :: Developers",
+    "Topic :: System :: Monitoring"
 ]
 
 [tool.poetry.urls]
@@ -20,10 +22,11 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pytz = "^2023.3.post1"
-opentelemetry-instrumentation-logging = "^0.42b0"
-prometheus-client = "^0.18.0"
+opentelemetry-instrumentation-logging = "^0.41b0"
+prometheus-client = "^0.19.0"
 opentelemetry-sdk = "^1.21.0"
 opentelemetry-exporter-otlp-proto-http = "^1.21.0"
+httpx = "^0.25.2"
 
 
 [tool.poetry.group.dev.dependencies]
